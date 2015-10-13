@@ -18,7 +18,11 @@ sap.ui.define([
 		 
 			var oModel = new JSONModel(oData);*/
 			
-			var oModel = new sap.ui.model.json.JSONModel();
+			//var oModel = new sap.ui.model.json.JSONModel();
+			
+					
+					
+			var oModel = new sap.ui.model.odata.ODataModel( "http://localhost:8085/S03/opu/odata/SAP/Z_TEST_SRV" );
 
 			/*var names = [
 			   {firstname:"Jim1", lastname: "Dan1"},
