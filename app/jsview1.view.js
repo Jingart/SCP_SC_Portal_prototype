@@ -10,6 +10,22 @@ sap.ui.jsview("app.jsview1", {
 	var page = new sap.m.Page("page1", {
 		title : "Odata test"
 	});
+	 
+	var bar = new sap.m.Bar({
+		contentLeft: [ new sap.m.Button('ButtonAddRow', {icon : "sap-icon://add", 
+													     press : [oController.onAddRowClick, oController] })],
+												 
+		contentMiddle: [ new sap.m.Button('ButtonLoad', {icon : "sap-icon://action", 
+														 press : oController.onLoadClick }),
+											   
+					     new sap.m.Button('ButtonSave', {icon : "sap-icon://save",
+														 press : oController.onSaveClick }),
+						 
+						 new sap.m.Button('ButtonDelete', {icon : "sap-icon://delete",
+														   press : oController.onDeleteClick })]
+	});
+			
+	page.addContent(bar);
 	
 	var oTable = new sap.m.Table("contact_table", {
         inset: true,
