@@ -32,17 +32,29 @@ sap.ui.jsview("app.jsview1", {
         columns: [
 			new sap.m.Column({ header: new sap.m.Label({ text: "USER_ID" }) }),
             new sap.m.Column({ header: new sap.m.Label({ text: "CONTACT" }) })
-        ],
+        ]//,
+		//mode : sap.m.ListMode.SingleSelectMaster
     });
+	
+	var template = new sap.m.ColumnListItem({
+		cells: [
+				new sap.m.Label({ text: "{USER_ID}" }),
+				new sap.m.Label({ text: "{CONTACT}" })
+		]
+	});
+	
+	template.setType(sap.m.ListType.Active);
+	
+	template.attachPress(function(oEvent){
+		var c = this.getBindingContext();
+		var i = c.getObject();
+		sap.m.MessageToast.show("jhgf");
+	});
+	
 	
 	oTable.bindAggregation("items", {
         path: "/MyTestSet",
-        template: new sap.m.ColumnListItem({
-            cells: [
-                    new sap.m.Label({ text: "{USER_ID}" }),
-                    new sap.m.Label({ text: "{CONTACT}" })
-            ]
-        })
+        template: template
     });
 	
 	page.addContent(oTable);

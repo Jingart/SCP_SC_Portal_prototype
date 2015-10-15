@@ -7,76 +7,32 @@ sap.ui.define([
 
     return Controller.extend("app.jsview1", {
 		
-		
 		onInit : function () {
 					
-			var oModel = new sap.ui.model.odata.ODataModel( "http://localhost:8085/S03/opu/odata/SAP/Z_TEST_SRV" );
+			var oModel = new sap.ui.model.odata.v2.ODataModel( "http://localhost:8085/S03/opu/odata/SAP/Z_TEST_SRV" );
 			
 			this.getView().setModel(oModel);
 			
 			//var app = this.getView();
 			//sap.m.MessageToast.show(app.toString());
-
 			
-			sap.ui.getCore().setModel(oModel, "name_model"); 
+			sap.ui.getCore().setModel(oModel, "ODATA_model"); 
 						
         },
 		
 		onAddRowClick : function (OEvent) {
-			/*var model = sap.ui.getCore().getModel("name_model");
-			//model.setProperty("/0/firstname", "qwerqwet");
+
+			var model = sap.ui.getCore().getModel("ODATA_model");
 			
-			if (model.oData.length > 0 ) {
-				var prop = model.getProperty("/");
-				prop.push({"firstname" : "", "lastname": ""});
-				model.setProperty("/", prop);
-			}else {
-				var data = [ {firstname : "", lastname : ""} ];
-				model.setData(data);
-			}*/
-			
-			var dialog = new sap.m.Dialog("dialog", {
+			var dialog = new sap.m.Dialog("add_dialog", {
                 modal: true,
-				closed: function(oControlEvent){
-					sap.ui.getCore().getElementById('dialog').destroy();
+				afterClose: function(oControlEvent){
+					sap.ui.getCore().getElementById('add_dialog').destroy();
 				}
 			});
 			
 			dialog.setTitle("Add Contact");
-			
-			/*var layout = new sap.ui.commons.layout.MatrixLayout({
-				columns: 2,
-				width: "100%"
-			});*/
-			/*
-			var inputUserId = new sap.m.Input("inputUserId", {
-                tooltip: 'User Id',
-				//editable: false,
-                //value: response.bankCountry,
-                width: '200px',
-				required: true
-			});
-			
-			var labelUserId = new sap.m.Label("labelUserId", {
-				text: 'User ID: ',
-				labelFor: inputUserId
-			});
-			
-			var inputContact = new sap.m.Input("textfieldContact", {
-                tooltip: 'Contact',
-                width: '200px',
-				required: true
-			});
-			
-			var labelContact = new sap.m.Label("labelContact", {
-				text: 'Contact: ',
-				labelFor: inputUserId
-			});
-			*/
-			//layout.createRow(labelUserId, inputUserId);
-			//layout.createRow(labelContact, inputContact);	
-			//dialog.addContent(layout);
-			
+						
 			var oGridForm = new sap.ui.layout.Grid({
 				hSpacing: 1,
 				vSpacing: 1, 	
@@ -164,7 +120,6 @@ sap.ui.define([
 							span: "L7 M7 S7"
 						})
 					})
-
 				]
 			});
 			
@@ -178,32 +133,39 @@ sap.ui.define([
 					var phone = sap.ui.getCore().byId("textfieldPhone").getValue();
 					var email = sap.ui.getCore().byId("textfieldEmail").getValue();
 					
-					var contactEntry = {user_id: user_id,
-										contact: contact,
-										contact_text: contact_txt,
-										phone: phone,
-										email: email};
+					var contactEntry = {USER_ID: user_id,
+										CONTACT: contact,
+										CONTACT_TEXT: contact_txt,
+										PHONE: phone,
+										EMAIL: email};
 				
-					var serviceURI = "http://localhost:8085/S03/opu/odata/SAP/Z_TEST_SRV/MyTestSet";
-					
-					var request = { headers: {"X-Requested-With": "XMLHttpRequest",
-											   "Accept": "application/atom+xml,application/atomsvc+xml,application/xml",
-											   "Content-Type": "application/atom+xml",
-											   "DataServiceVersion": "2.0" 
-											 },
-									requestUri: serviceURI,
-									method: "POST",
-									//user: "developer",
-									//password: "ch4ngeme",
-									data: contactEntry };
-									
-					OData.request( request, function (data) {
-						sap.ui.commons.MessageBox.show("New contact saved successfully.", sap.ui.commons.MessageBox.Icon.SUCCESS, "Contact Saved", sap.ui.commons.MessageBox.Action.OK);
-					},
-					function (err) {
-						
+					model.create("/MyTestSet", contactEntry, {success: function (data) {
+							jQuery.sap.require("sap.m.MessageBox");
+							sap.m.MessageBox.show("Successfully added", {
+								icon : sap.m.MessageBox.Icon.SUCCESS, 
+								title : "Odata success",
+								actions : sap.m.MessageBox.Action.OK,
+								onClose : function() {
+									    var diag = sap.ui.getCore().byId("add_dialog");
+									    diag.close();
+								    }
+								}   
+							);
+						}, 
+						error: function (err) {
+							jQuery.sap.require("sap.m.MessageBox");
+							sap.m.MessageBox.show(err.message + "\n" + err.statusCode + " " + err.statusText, {
+								icon : sap.m.MessageBox.Icon.ERROR, 
+								title : "Odata error",
+								actions : sap.m.MessageBox.Action.OK,
+								onClose : function() {
+									    var diag = sap.ui.getCore().byId("add_dialog");
+									    diag.close();
+								    }
+								}   
+							);
+						} 
 					});
-				
 				}
 			}));
 			
@@ -242,8 +204,39 @@ sap.ui.define([
 			var oData = [];
 			model.setData(oData); 
 			oStorage.clear();*/
+			
+			var oData = {
+				ProductId: 999,
+				ProductName: "myProductUpdated"
+			}
+			
+			oModel.update("/Products(999)", oData, {success: mySuccessHandler, error: myErrorHandler});
+
 		}
 		
     });
 
 });
+
+
+				/*
+					var serviceURI = "http://localhost:8085/S03/opu/odata/SAP/Z_TEST_SRV/MyTestSet";
+					
+					var request = { headers: {"X-Requested-With": "XMLHttpRequest",
+											   "Accept": "application/atom+xml,application/atomsvc+xml,application/xml",
+											   "Content-Type": "application/atom+xml",
+											   "DataServiceVersion": "2.0" 
+											 },
+									requestUri: serviceURI,
+									method: "PUT",
+									//user: "",
+									//password: "",
+									data: contactEntry };
+									
+					OData.request( request, function (data) {
+						sap.ui.commons.MessageBox.show("New contact saved successfully.", sap.ui.commons.MessageBox.Icon.SUCCESS, "Contact Saved", sap.ui.commons.MessageBox.Action.OK);
+					},
+					function (err) {
+						sap.ui.commons.MessageBox.show(err.message + "\n" + err.response.body + "\n" + err.response.statusCode + " " + err.response.statusText, "", "ODATA error");
+					});
+				*/
